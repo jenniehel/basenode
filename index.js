@@ -2,7 +2,7 @@ var express = require('express');
 var nodemailer = require('nodemailer');
 const app = express()
 const port = 3000
-
+const otpGenerator = require('otp-generator')
 app.set("view engine", "ejs"); 
 app.use(express.urlencoded({ extended: true }));
 const googleOAuth2Client = require('./config/googleOAuth2Client');
@@ -19,6 +19,7 @@ app.use(session({
   saveUninitialized: true,
   cookie: { secure: false }
 }))
+ 
 app.get('/', (req, res) => {
   
  return   res.render("index");
@@ -79,11 +80,13 @@ app.post('/email/send',async (req, res) => {
     },
   });
   await transporter.verify();
+  const optdata= otpGenerator.generate(6, { upperCaseAlphabets: false, specialChars: false });
+
   const mailOptions = {
     from: 'awd0900814212@gmail.com',
     to: email,
-    subject: '你好',
-    text: '很高興認識你',
+    subject: '你好，您的密碼',
+    text: optdata,
   };
 
   transporter.sendMail(mailOptions, (err, info) => {
